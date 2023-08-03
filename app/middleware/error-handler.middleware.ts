@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 const APIError = require("../utilities/Error");
 
-module.exports = function (
+export function errorHandler(
   error: any,
   req: Request,
   res: Response,
@@ -19,4 +19,4 @@ module.exports = function (
     message: "Oops, internal server error",
     data: error,
   });
-};
+}

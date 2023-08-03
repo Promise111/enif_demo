@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.errorHandler = void 0;
 const APIError = require("../utilities/Error");
-module.exports = function (error, req, res, next) {
+function errorHandler(error, req, res, next) {
     if (error instanceof APIError) {
         return res.status(error === null || error === void 0 ? void 0 : error.statusCode).json({
             status: "error",
@@ -14,4 +15,5 @@ module.exports = function (error, req, res, next) {
         message: "Oops, internal server error",
         data: error,
     });
-};
+}
+exports.errorHandler = errorHandler;

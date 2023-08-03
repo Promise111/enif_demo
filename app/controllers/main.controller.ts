@@ -1,17 +1,23 @@
 import { Request, Response, NextFunction } from "express";
+import { verifyRequestSignature } from "../utilities/helpers";
 
-exports.webhookGet = async function (
+export async function webhookGet(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-  const VERIFY_TOKEN = "your_verify_token"; // Replace with your VERIFY_TOKEN
+  const VERIFY_TOKEN = process.env.VERIFY_TOKEN; // Replace with your VERIFY_TOKEN
   const mode = req.query["hub.mode"];
   const token = req.query["hub.verify_token"];
   const challenge = req.query["hub.challenge"];
+  const signature = req.headers["x-hub-signature-256"];
+  const appSecret = process.env.APP_SECRET || "token";
+  // let isSignatureValid = verifyRequestSignature(signature, appSecret, "");
   try {
+    console.log(mode, token, challenge);
+
     if (mode === "subscribe" && token === VERIFY_TOKEN) {
-      console.log("Webhook verified!");
+      console.log("WEBHOOK_VERIFIED");
       return res.status(200).send(challenge);
     } else {
       console.error("Failed to verify webhook!");
@@ -20,9 +26,9 @@ exports.webhookGet = async function (
   } catch (error) {
     next(error);
   }
-};
+}
 
-exports.webhookPost = async function (
+export async function webhookPost(
   req: Request,
   res: Response,
   next: NextFunction
@@ -40,16 +46,18 @@ exports.webhookPost = async function (
     // Process the message (e.g., send a response)
     // Replace this with your custom message handling logic
     console.log("Received message:", message);
-  }
 
-  res.status(200).send("EVENT RECEIVED");
+    res.status(200).send("EVENT RECEIVED");
+  } else {
+    return res.sendStatus(404);
+  }
   try {
   } catch (error) {
     next(error);
   }
-};
+}
 
-exports.sendMessage = async function name(
+export async function sendResponseMessage(
   req: Request,
   res: Response,
   next: NextFunction
@@ -63,4 +71,4 @@ exports.sendMessage = async function name(
   } catch (error) {
     next(error);
   }
-};
+}

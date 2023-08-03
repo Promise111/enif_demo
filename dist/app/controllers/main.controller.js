@@ -9,15 +9,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.webhookGet = function (req, res, next) {
+exports.sendResponseMessage = exports.webhookPost = exports.webhookGet = void 0;
+function webhookGet(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        const VERIFY_TOKEN = "your_verify_token"; // Replace with your VERIFY_TOKEN
+        const VERIFY_TOKEN = process.env.VERIFY_TOKEN; // Replace with your VERIFY_TOKEN
         const mode = req.query["hub.mode"];
         const token = req.query["hub.verify_token"];
         const challenge = req.query["hub.challenge"];
+        const signature = req.headers["x-hub-signature-256"];
+        const appSecret = process.env.APP_SECRET || "token";
+        // let isSignatureValid = verifyRequestSignature(signature, appSecret, "");
         try {
+            console.log(mode, token, challenge);
             if (mode === "subscribe" && token === VERIFY_TOKEN) {
-                console.log("Webhook verified!");
+                console.log("WEBHOOK_VERIFIED");
                 return res.status(200).send(challenge);
             }
             else {
@@ -29,8 +34,9 @@ exports.webhookGet = function (req, res, next) {
             next(error);
         }
     });
-};
-exports.webhookPost = function (req, res, next) {
+}
+exports.webhookGet = webhookGet;
+function webhookPost(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         const body = req.body;
         console.log(`\u{1F7EA} Received webhook:`);
@@ -44,16 +50,20 @@ exports.webhookPost = function (req, res, next) {
             // Process the message (e.g., send a response)
             // Replace this with your custom message handling logic
             console.log("Received message:", message);
+            res.status(200).send("EVENT RECEIVED");
         }
-        res.status(200).send("EVENT RECEIVED");
+        else {
+            return res.sendStatus(404);
+        }
         try {
         }
         catch (error) {
             next(error);
         }
     });
-};
-exports.sendMessage = function name(req, res, next) {
+}
+exports.webhookPost = webhookPost;
+function sendResponseMessage(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             res.status(200).json({
@@ -66,4 +76,5 @@ exports.sendMessage = function name(req, res, next) {
             next(error);
         }
     });
-};
+}
+exports.sendResponseMessage = sendResponseMessage;

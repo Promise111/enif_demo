@@ -2,10 +2,12 @@ require("dotenv").config();
 import express, { Request, Response, Express } from "express";
 import path from "node:path";
 const PORT = process.env.PORT || 8000;
-const errorHandler = require("./app/middleware/error-handler.middleware");
+import { errorHandler } from "./app/middleware/error-handler.middleware";
+import { limiter } from "./app/middleware/rate-limiter.middleware";
 
 const app: Express = express();
 
+// app.use(limiter);
 app.use(express.static(path.join(__dirname, "..", "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
